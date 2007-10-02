@@ -215,7 +215,7 @@ if (missing(pluginz))
    }
 else 
    {
-    sz <- if ("sigma"%in%fitout$parameters)    rep(pluginz-fitout$mu.coef[[1]],rep(N,k)) #?? is this correct  
+    sz <- if ("sigma"%in%fitout$parameters)    rep(pluginz-fitout$mu.coef[[1]],rep(N,K)) #?? is this correct  
    } 
 Eta <- fitout$mu.lp + sz
 ## I have to check what is doing  

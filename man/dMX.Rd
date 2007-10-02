@@ -33,7 +33,7 @@ pMX(q, mu = list(mu1 = 1, mu2 = 5), sigma = list(sigma1 = 1, sigma2 = 1),
 Returns values or pdf  or cdf. 
 }
 \references{}
-\author{Mikis Stasinopuolos}
+\author{Mikis Stasinopoulos}
 \note{}
 \seealso{}
 \examples{

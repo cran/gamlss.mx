@@ -258,7 +258,7 @@ out <- list(models = allModels,
                sbc = newdv+log(N)*df.fit,
                  K = K,
                  N = N,
-                 w = pweights., 
+           weights = pweights., 
          residuals = res,
               seed = control$seed
                  )
@@ -386,6 +386,11 @@ terms(x$models[[K]], ...)
 predict.gamlssMX <- function(x, K=1, ...)
 {
 predict(x$models[[K]], ...)
+}
+#----------------------------------------------------------------------------------------
+residuals.gamlssMX <- function(object,...)
+{
+object$residuals
 }
 #----------------------------------------------------------------------------------------
 # this function fits n models with different starting values 

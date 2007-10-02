@@ -35,7 +35,7 @@ S3method(formula, gamlssMX)
 S3method(print, gamlssMX)
 S3method(print, gamlssNP)
 S3method(family, gamlssNP)
-
+S3method(residuals, gamlssMX)
 
 
 #S3method(addterm, gamlss)
