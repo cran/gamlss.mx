@@ -548,6 +548,8 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
     if (is.null(x$residuals)) #    
          stop(paste("There are no randomised quantile residuals"))
 # whether index or x-variable
+    residx <- resid(x) # get the residuals 
+         w <- x$weights
     xlabel <- if(!missing(xvar)) deparse(substitute(xvar)) else deparse(substitute(index))
     if(is.null(xvar))  xvar <- seq(1,length(resid(x)),1) # MS
 # plot parameters
@@ -558,7 +560,7 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
     if(identical(ts, TRUE))
      {
     # require(stats)
-     acf.new<-acf(resid(x),plot=FALSE)
+     acf.new<-acf(residx,plot=FALSE)
      plot(acf.new,xlim=c(2,length(acf.new$acf)),ylim=range(acf.new$acf[-1]))   # ms Tuesday, August 19, 2003 at 11:04
      pacf(resid(x))
      }
@@ -566,48 +568,46 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
      {
      fittedvalues <- if(is.null(fitted(x))) fitted(x,"sigma") else fitted(x) # MS Wednesday, September 10, 2003 at 21:20
     # top left
-    plot(fittedvalues , resid(x),
+    plot(fittedvalues , residx,
          xlab = "Fitted Values",  
          ylab = "Quantile Residuals", 
          main = "Against Fitted Values",
          frame.plot = TRUE) 
     # top right  
-    plot(xvar, resid(x), 
+     plot(xvar, residx, 
          ylab = "Quantile Residuals",
          xlab = xlabel, 
          main = paste("Against ", xlabel), 
          frame.plot = TRUE) #  points(par(col="blue4"))
      }    
-    plot(density(x$residuals), 
+   plot(density(residx), 
          xlab = "Quantile. Residuals", 
          ylab = "Density", 
          main = "Density Estimate",
          frame.plot = TRUE, 
          col="black", 
          lwd=0.4 ) #col="deepskyblue4", col="darkgreen", 
-         rug(x$residuals, col="red", points(par(col="blue4")))
+         rug(residx, col="red", points(par(col="blue4")))
  
-    qqnorm(resid(x), main = "Normal Q-Q Plot",
+    qqnorm(residx, main = "Normal Q-Q Plot",
             xlab = "Theoretical Quantiles",
             ylab = "Sample Quantiles", 
             plot.it = TRUE, 
             frame.plot = TRUE, 
             col="darkgreen", 
             points(par(col="darkgreen")))
-     lines(resid(x), resid(x), col="red" , lwd=.4, cex=.4 )
-     
-     if ( identical(summaries, TRUE))
+            lines(residx, residx, col="red" , lwd=.4, cex=.4 )
+  
+  if ( identical(summaries, TRUE))
                { 
-                     qq <- as.data.frame(qqnorm(x$residuals, plot = FALSE))
+                     qq <- as.data.frame(qqnorm(residx, plot = FALSE))
                Filliben <- cor(qq$y,qq$x)
-                    # w  <- x$w 
-                  n.obs <-  x$noObs/x$K#sum(w) 
-                     mr <- as.matrix(x$residuals)
-                    m.1 <- mean(x$residuals)#weighted.mean(x$residuals,w)
-                    m.2 <- cov(mr)$cov
-                #  n.obs <- sum(w) 
-                    m.3 <- sum((x$residuals-m.1)**3)/n.obs 
-                    m.4 <- sum((x$residuals-m.1)**4)/n.obs 
+                    # mr <- as.matrix(residx)
+                    m.1 <- mean(residx)
+                    m.2 <- var(residx) # cov.wt(mr,w)$cov
+                  n.obs <- sum(w) 
+                    m.3 <- sum((residx-m.1)**3)/n.obs 
+                    m.4 <- sum((residx-m.1)**4)/n.obs 
                     b.1 <- m.3^2/m.2^3
                 sqrtb.1 <- sign(m.3)*sqrt(abs(b.1))
                     b.2 <- m.4/m.2^2 
@@ -625,9 +625,15 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
                      cat("*******************************************************************")
                      cat("\n")
 
-               }
+               }   
     par(op)
 }
+#----------------------------------------------------------------------------------------
+residuals.gamlssNP <- function(object,...)
+{
+object$residuals
+}
+#----------------------------------------------------------------------------------------
 #par(mfrow=c(2,2), mar=par("mar")+c(0,1,0,0), col.axis="blue4", col="blue4", col.main="blue4",col.lab="blue4",pch="+",cex=.45, cex.lab=1.2, cex.axis=1, cex.main=1.2  )
 #---------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
