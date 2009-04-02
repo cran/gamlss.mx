@@ -81,7 +81,7 @@ This object contain several components.
  \item{parameters}{the parameters for the kernel gamlss family distribution}
  \item{call}{the call of the gamlssNP function}
  \item{y}{the response variable}
- item{bd}{the binimial demominator (only for BI and BB models)}
+ \item{bd}{the binomial demominator, only for BI and BB models}
  \item{control}{the NP.control settings}
  \item{weights}{the vector of weights of te expanded fit}
  \item{G.deviance}{the global deviance} 

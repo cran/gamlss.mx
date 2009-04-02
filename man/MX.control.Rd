@@ -34,7 +34,6 @@ Accompanying documentation in the current GAMLSS  help files, (see also  \url{ht
 \note{}
 \seealso{\code{\link[gamlss]{gamlss}}, \code{\link{gamlssMX}}, \code{\link{gamlssMXfits}} }
 \examples{}
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{regression}

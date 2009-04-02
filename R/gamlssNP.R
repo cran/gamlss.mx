@@ -70,12 +70,13 @@ if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
         yy <- rep(obj$y, K)
         bd <- rep(obj$bd, K) 
         } 
-    else {
+    else 
+        {
         yy <- rep(obj$y,K) 
+        }   
         if (("sigma"%in%obj$parameters)) sigma <- rep(fitted(obj,"sigma"),K) 
         if (("nu"%in%obj$parameters)) nu <- rep(fitted(obj,"nu"),K) 
         if (("tau"%in%obj$parameters)) tau <- rep(fitted(obj,"tau"),K)  
-         }
  switch(nopar,  
     {lik <- if (fname%in%gamlss.bi.list) eval(call(dfun, y=yy, bd=bd,  mu=mu, log=TRUE))
             else   eval(call(dfun, y=yy, mu=mu, log=TRUE))},

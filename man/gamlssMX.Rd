@@ -20,7 +20,7 @@ gamlssMXfits(n = 5, formula = formula(data), pi.formula = ~1,
 }
 \arguments{
   \item{formula}{This argument it should be a formula (or a list of formulea of length
-  K) for modelling the $\mu$ parameter of the model. Note that
+  K) for modelling the \code{mu} parameter of the model. Note that
   modelling the rest of the distributional parameters it can be done
   by using the usual \code{\dots} which passes the arguments to
   \code{gamlss()} }
