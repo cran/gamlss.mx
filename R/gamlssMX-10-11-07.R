@@ -395,6 +395,10 @@ object$residuals
 #----------------------------------------------------------------------------------------
 # this function fits n models with different starting values 
 # and select the one with smallest deviance 
+#----------------------------------------------------------------------------------------
+# this function fits n models with different starting values 
+# and select the one with smallest deviance 
+# last modification Thursday, April 30, 2009 
 gamlssMXfits <- function(    n = 5,
                        formula = formula(data), 
                     pi.formula = ~1, 
@@ -414,9 +418,17 @@ gamlssMXfits <- function(    n = 5,
              seed <- floor(runif(min=0,max=10000, n=n))
 for (i in (1:n))
  {
- modellist[[i]] <- gamlssMX(formula=formula,  pi.formula = pi.formula, family = family ,K=K,  prob=prob, data = 
+  m1 <- try(gamlssMX(formula=formula,  pi.formula = pi.formula, family = family ,K=K,  prob=prob, data = 
                     data, control=MX.control(seed=seed[i]), g.control = gamlss.control(trace=FALSE), 
-                    zero.component=zero.component)
+                    zero.component=zero.component)) #
+             if (any(class(m1)%in%"try-error")) 
+               { 
+                cat("model=", i, "failed", "\n") 
+                dev[i] <- NA    
+        modellist[[i]] <- NA
+                 next
+               }
+ modellist[[i]] <- m1 
          dev[i] <- deviance(modellist[[i]])
  cat("model=", i,"\n")                    
  }
@@ -428,6 +440,8 @@ gamlssMXfitscall[[1]] <- as.name("gamlssMX")
           model$extra <- list(dev=dev, seed=seed, which=II)
  model
 }
+#----------------------------------------------------------------------------------------
+
 #----------------------------------------------------------------------------------------
 update.gamlssMX <- function (object, 
                           formula., 
