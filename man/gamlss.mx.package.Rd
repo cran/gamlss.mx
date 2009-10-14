@@ -43,7 +43,7 @@ Accompanying documentation in the current GAMLSS  help files, (see also  \url{ht
 \keyword{ distribution }
 \keyword{ regression }
 
-\seealso{\code{\link[gamlss]{gamlss}},\code{\link[gamlss]{gamlss.family}}  
+\seealso{\code{\link[gamlss]{gamlss}},\code{\link[gamlss.dist]{gamlss.family}}  
 }
 \examples{
 data(enzyme)

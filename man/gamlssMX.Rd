@@ -44,11 +44,7 @@ gamlssMXfits(n = 5, formula = formula(data), pi.formula = ~1,
   \item{zero.component}{whether zero component models exist, default is \code{FALSE}}
   \item{\dots}{ for extra arguments} 
 }
-\details{
-}
-\value{
-    
-}
+
 \references{ Rigby, R. A. and  Stasinopoulos D. M. (2005). Generalized additive models for location, scale and shape,
 (with discussion), \emph{Appl. Statist.}, \bold{54}, part 3, pp 507-554.
 
@@ -56,9 +52,8 @@ Stasinopoulos D. M., Rigby R.A. and Akantziliotou C. (2003) Instructions on how 
 Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.com/}).
  }
 \author{Mikis Stasinopoulos and Bob Rigby}
-\note{
-}
-\seealso{\code{\link[gamlss]{gamlss}}, \code{\link[gamlss]{gamlss.family}}}
+
+\seealso{\code{\link[gamlss]{gamlss}}, \code{\link[gamlss.dist]{gamlss.family}}}
 \examples{
 library(MASS)
 data(geyser)

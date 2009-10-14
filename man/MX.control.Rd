@@ -19,8 +19,7 @@ MX.control(cc = 1e-04, n.cyc = 200, trace = FALSE,
   \item{sample}{how large the sample to be in the starting values}
   \item{\dots}{for extra arguments}
 }
-\details{
-}
+
 \value{
  Returns a list 
 }
@@ -31,9 +30,8 @@ Stasinopoulos D. M., Rigby R.A. and Akantziliotou C. (2003) Instructions on how 
 Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.com/}).
 }
 \author{ Mikis Stasinopoulos and Bob Rigby }
-\note{}
 \seealso{\code{\link[gamlss]{gamlss}}, \code{\link{gamlssMX}}, \code{\link{gamlssMXfits}} }
-\examples{}
+
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{regression}

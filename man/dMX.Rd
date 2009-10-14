@@ -28,14 +28,12 @@ pMX(q, mu = list(mu1 = 1, mu2 = 5), sigma = list(sigma1 = 1, sigma2 = 1),
   \item{log}{whether the  \code{log} of the function or not}
   \item{\dots}{for extra arguments}
 }
-\details{}
+
 \value{
 Returns values or pdf  or cdf. 
 }
-\references{}
+
 \author{Mikis Stasinopoulos}
-\note{}
-\seealso{}
 \examples{
 fyNO<-dMX(y=seq(0,3,.01), mu=list(1.253, 0.1876), sigma=list(exp(-0.6665 ), exp(-2.573 )),
                   pi=list(0.4079609, 0.5920391 ), family=list("NO","NO") )

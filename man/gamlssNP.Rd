@@ -177,9 +177,8 @@ Stasinopoulos D. M., Rigby R.A. and Akantziliotou C. (2003) Instructions on how 
 Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.com/}).
 }
 \author{Mikis Stasinopoulos based on function created by Jochen Einbeck John Hinde and Ross Darnell}
-\note{ 
-}
-\seealso{\code{\link[gamlss]{gamlss}}, \code{\link[gamlss]{gamlss.family}}}
+
+\seealso{\code{\link[gamlss]{gamlss}}, \code{\link[gamlss.dist]{gamlss.family}}}
 \examples{
 data(enzyme)
 # equivalent model using gamlssNP

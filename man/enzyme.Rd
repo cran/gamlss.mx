@@ -30,14 +30,7 @@ blood of 245 individuals.}
 
   }
 }
-\details{
-  }
-\source{
-  
-}
-\references{
-  
-}
+
 \examples{
 data(enzyme)
 hist(enzyme$act)
