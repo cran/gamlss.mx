@@ -1,8 +1,8 @@
 Package: gamlss.mx
 Type: Package
 Title: A GAMLSS add on package for fitting mixture distributions
-Version: 3.0-1
-Date: 2009-10-14
+Version: 3.1-0
+Date: 2009-11-22
 Author: Mikis Stasinopoulos <d.stasinopoulos@londonmet.ac.uk>, Bob
         Rigby <r.rigby@londonmet.ac.uk>
 Maintainer: Mikis Stasinopoulos <d.stasinopoulos@londonmet.ac.uk>
@@ -12,6 +12,6 @@ Description: The main purpose of this package is to allow fitting of
         mixture distributions with GAMLSS models.
 License: GPL-2 | GPL-3
 URL: http://www.gamlss.com/
-Packaged: 2009-10-14 11:58:06 UTC; stasinom
+Packaged: 2009-11-22 13:21:16 UTC; stasinom
 Repository: CRAN
-Date/Publication: 2009-10-14 13:12:48
+Date/Publication: 2009-11-22 16:17:24
