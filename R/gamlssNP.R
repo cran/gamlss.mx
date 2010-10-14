@@ -598,8 +598,7 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
          frame.plot = TRUE, 
          col="black", 
          lwd=0.4 ) #col="deepskyblue4", col="darkgreen", 
-         rug(residx, col="red", points(par(col="blue4")))
- 
+         rug(residx, col="red")
     qqnorm(residx, main = "Normal Q-Q Plot",
             xlab = "Theoretical Quantiles",
             ylab = "Sample Quantiles", 
