@@ -27,7 +27,7 @@ MX.control(cc = 1e-04, n.cyc = 200, trace = FALSE,
 (with discussion), \emph{Appl. Statist.}, \bold{54}, part 3, pp 507-554.
 
 Stasinopoulos D. M., Rigby R.A. and Akantziliotou C. (2003) Instructions on how to use the GAMLSS package in R.
-Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.org/}).
+Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.com/}).
 }
 \author{ Mikis Stasinopoulos and Bob Rigby }
 \seealso{\code{\link[gamlss]{gamlss}}, \code{\link{gamlssMX}}, \code{\link{gamlssMXfits}} }

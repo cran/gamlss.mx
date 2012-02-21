@@ -1,0 +1,13 @@
+184fad4daf7966c0d0b7fbae42782f1c *DESCRIPTION
+5fc6ef7092b7e09426449c192611aaa8 *NAMESPACE
+e5b7c4ee034ace48081326445d7835e1 *R/gamlssMX-10-11-07.R
+b6cb7e4426f2751b34cc728e4a57d2cc *R/gamlssNP.R
+138ac71a744573b6c7021989b0f101eb *data/brains.rda
+55f4fcd2ae730f6dbd7ef98025b94bad *data/enzyme.rda
+023ff36a4f96ba9123ef27718c4ca777 *man/MX.control.Rd
+8f7e30806f2e884bd98d4e2d3354d9b0 *man/NP.control.Rd
+dc095ec237de6417b16c07140f075600 *man/dMX.Rd
+68831330a577bc0a2f9533124923b762 *man/enzyme.Rd
+4f6254fd82441d2e4663740e2f5cd891 *man/gamlss.mx.package.Rd
+9c3f5563187645fc150a393217aff8ae *man/gamlssMX.Rd
+6c5c143317a93820fd5b81eecebf4de1 *man/gamlssNP.Rd

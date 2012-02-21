@@ -175,7 +175,7 @@ pweights. <- pweights. <<- if (missing(weights)) rep(1,N) else weights
      if(zero.component == TRUE) 
       {
       dataKK <- expand.vc(data,KK)# expand data.
-      fac.fit <- gl(KK,N)
+     fac.fit <- gl(KK,N)
       }
       else
       { 
@@ -349,7 +349,7 @@ warning("the value of no cycles supplied is zero or negative the default value o
 }
 #----------------------------------------------------------------------------------------
 ######################################################################################
-#                         fitted.gamlss
+#                         fitted.gamlssMX
 ######################################################################################
 # MS is this justified if mu not the mean? also does it makes sense for other parameters??
 fitted.gamlssMX<-function (object, K=1, ... ) 
