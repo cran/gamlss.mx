@@ -49,7 +49,7 @@ gamlssMXfits(n = 5, formula = formula(data), pi.formula = ~1,
 (with discussion), \emph{Appl. Statist.}, \bold{54}, part 3, pp 507-554.
 
 Stasinopoulos D. M., Rigby R.A. and Akantziliotou C. (2003) Instructions on how to use the GAMLSS package in R.
-Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.com/}).
+Accompanying documentation in the current GAMLSS  help files, (see also  \url{http://www.gamlss.org/}).
  }
 \author{Mikis Stasinopoulos and Bob Rigby}
 
@@ -59,6 +59,7 @@ library(MASS)
 data(geyser)
 # fitting 2 finite normal mixtures 
 m1<-gamlssMX(waiting~1,data=geyser,family=NO, K=2)
+\dontrun{
 #fitting 2 finite gamma mixtures 
 m2<-gamlssMX(waiting~1,data=geyser,family=GA, K=2)
 # fitting a model for pi
@@ -71,7 +72,7 @@ geyser1 <-data.frame(geyser1)
 # get the best of 5 fits
 m3<-gamlssMXfits(n=5, waiting~1, pi.formula=~duration, data=geyser1,family=NO, K=2)
 m3
-
+}
 }
 \keyword{regression}
 

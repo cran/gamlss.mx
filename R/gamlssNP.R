@@ -20,6 +20,7 @@ gamlssNP<-function(formula,
 #----------------------------------------------------------------------------------------
 ## functions within gamlssNP
 #----------------------------------------------------------------------------------------
+.gamlss.bi.list <- eval(quote(.gamlss.bi.list), envir = getNamespace("gamlss"))
 ## expanding the data
 expand.vc <- function(x,ni)
 {
@@ -65,7 +66,7 @@ if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
    nopar <- length(DistPar) 
     dfun <- paste("d",fname,sep="")
  # the first time the length of y is N not NxK so we recalculate y
-    if (fname%in%gamlss:::.gamlss.bi.list) 
+    if (fname%in%.gamlss.bi.list) 
         {
         yy <- rep(obj$y, K)
         bd <- rep(obj$bd, K) 
@@ -78,13 +79,13 @@ if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
         if (("nu"%in%obj$parameters)) nu <- rep(fitted(obj,"nu"),K) 
         if (("tau"%in%obj$parameters)) tau <- rep(fitted(obj,"tau"),K)  
  switch(nopar,  
-    {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, log=TRUE))
+    {lik <- if (fname%in%.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, log=TRUE))
             else   eval(call(dfun, x=yy, mu=mu, log=TRUE))},
-    {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, log=TRUE ))
+    {lik <- if (fname%in%.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, log=TRUE ))
             else   eval(call(dfun, x=yy, mu=mu, sigma=sigma, log=TRUE)) },
-    {lik <-  if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, nu=nu, log=TRUE ))
+    {lik <-  if (fname%in%.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, nu=nu, log=TRUE ))
             else eval(call(dfun,x=yy, mu=mu, sigma=sigma, nu=nu ,log=TRUE))},
-    {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, nu=nu, tau=tau, log=TRUE ))
+    {lik <- if (fname%in%.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, nu=nu, tau=tau, log=TRUE ))
             else eval(call(dfun,x=yy, mu=mu, sigma=sigma, nu=nu, tau=tau,log=TRUE))})
 lik
 }
@@ -98,13 +99,13 @@ if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
    nopar <- length(DistPar) 
     dfun <- paste("d",fname,sep="")
  switch(nopar,  
-    { lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), log=TRUE))
+    { lik <- if (fname%in%.gamlss.bi.list) eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), log=TRUE))
              else   eval(call(dfun, x=obj$y, mu=fitted(obj, "mu"), log=TRUE))},
-    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), log=TRUE ))
+    {lik <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), log=TRUE ))
              else   eval(call(dfun, x=obj$y, mu=fitted(obj, "mu"), sigma=fitted(obj,"sigma"), log=TRUE)) },
-    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"),log=TRUE ))
+    {lik <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"),log=TRUE ))
              else   eval(call(dfun,x=obj$y, mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"),log=TRUE))},
-    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau"),log=TRUE))
+    {lik <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau"),log=TRUE))
              else eval(call(dfun,x=obj$y, mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau"),log=TRUE))})
 lik
 }                          
@@ -120,13 +121,13 @@ if (!is.gamlss(object))  stop(paste("This is not an gamlss object", "\n", ""))
     dfun <- paste("p",fname,sep="")
  # binomial denominators
  switch(nopar,  
-    {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu")))
+    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu")))
              else  eval(call(dfun,q=object$y, mu=fitted(object,"mu")))},
-    {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma")))
+    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma")))
              else  eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"))) },
-    {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu")))
+    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu")))
              else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu")))},
-    {pfun <-  if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu"),  tau=fitted(object,"tau")))
+    {pfun <-  if (fname%in%.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu"),  tau=fitted(object,"tau")))
              else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))})
 pfun 
 }             

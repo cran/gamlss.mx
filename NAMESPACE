@@ -9,6 +9,9 @@ export(gamlssMX, MX.control, gamlssMXfits,
 
 importFrom(stats,  family, fitted)
 importFrom(nnet, nnet)
+importFrom(gamlss, .gamlss.bi.list)
+importFrom(gamlss)
+importFrom(MASS)
 # needed for gamlss family
 #export(as.family, gamlss.family, gamlss.family.default, as.gamlss.family)
 
