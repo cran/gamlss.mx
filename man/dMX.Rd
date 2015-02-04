@@ -30,7 +30,7 @@ pMX(q, mu = list(mu1 = 1, mu2 = 5), sigma = list(sigma1 = 1, sigma2 = 1),
 }
 
 \value{
-Returns values or pdf  or cdf. 
+Returns values or pdf or cdf. 
 }
 
 \author{Mikis Stasinopoulos}

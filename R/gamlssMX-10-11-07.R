@@ -1,13 +1,16 @@
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 ## this  a general function for fitting mixures within gamlss
 ## created by Mikis Stasinopoulos and Bob Rigby 
+## LAST CHECKED 5-8-14 
 ## latest change Tuesday, April 10, 2007 at 08:54
 ## Some of the models which can be fitted 
 ## with the function gamlssNP can be identical 
 ## it needs a summary functions  
 ## In this version the prior probabilities
 ## pi can be modelled 
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 gamlssMX  <- function ( formula = formula(data), 
                      pi.formula = ~1, 
                          family = "NO", # note is character
@@ -20,9 +23,9 @@ gamlssMX  <- function ( formula = formula(data),
                  zero.component = FALSE,     
                       ...)
  {
-#----------------------------------------------------------
+#-------------------------------------------------------------------------------
 .gamlss.bi.list <- eval(quote(.gamlss.bi.list), envir = getNamespace("gamlss"))
-# extra functions within 
+# extra functions within -------------------------------------------------------
 # for getting the commulative function
 get.the.p.function <- function(object, ...)
 {
@@ -44,8 +47,7 @@ if (!is.gamlss(object))  stop(paste("This is not an gamlss object", "\n", ""))
              else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))})
 pfun 
 }
-#----------------------------------------------------------
-#=---------------------------------------------------------
+#-------------------------------------------------------------------------------
 get.likelihood <- function(obj)
 {
 #gamlss.bi.list <- c("BI", "Binomial", "BB", "Beta Binomial")
@@ -65,8 +67,7 @@ if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
             else eval(call(dfun,x=obj$y, mu=fitted(obj), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau")))})
 lik
 }           
-#----------------------------------------------------------
-#----------------------------------------------------------
+#-------------------------------------------------------------------------------
 expand.vc <- function(x,ni)
 {
   if (length(ni)==1)
@@ -89,9 +90,9 @@ expand.vc <- function(x,ni)
       xx
   }
 }
-#----------------------------------------------------------
+#-------------------------------------------------------------------------------
 # the proper function starts here
-#----------------------------------------------------------
+#-------------------------------------------------------------------------------
 #library(gamlss)
 #library(nnet)
  gamlssMXcall <- match.call()  #   the function call
@@ -139,18 +140,18 @@ expand.vc <- function(x,ni)
 if (length(allFamily)!=K) stop("the length of the list for the family is not equal the number of componets in the mixture")
 if (length(allFormula)!=K) stop("the length of the list for the formula is not equal the number of componets in the mixture")
 ## get response for his length
- Y <- model.extract(model.frame(allFormula[[1]],data=data),"response")
- N <-  if(is.null(dim(Y))) length(Y) else dim(Y)[1]   # calculate the dimension for y  
+        Y <- model.extract(model.frame(allFormula[[1]],data=data),"response")
+        N <-  if(is.null(dim(Y))) length(Y) else dim(Y)[1]# calculate the dimension for y  
 pweights. <- pweights. <<- if (missing(weights)) rep(1,N) else weights  
 ## get things from control
   set.seed(control$seed) # set the seed 
-  prob.sample <- if (is.null(control$sample)) 10/N else control$sample  
+prob.sample <- if (is.null(control$sample)) 10/N else control$sample  
 ## creating the matrix of posterior probabilities (weights)
-         W <- matrix(1, nrow=N, ncol=K ) 
- allModels <- vector("list",K)
+        W <- matrix(1, nrow=N, ncol=K ) 
+allModels <- vector("list",K)
 ## get starting values for the weights (posterior probabilities)
  for (i in 1:K)
-   {          wSam <- sample(c(0,1), N, replace = TRUE, prob=c(1-min(.5,prob.sample),min(.5,prob.sample)))  
+   {         wSam <- sample(c(0,1), N, replace = TRUE, prob=c(1-min(.5,prob.sample),min(.5,prob.sample)))  
               ww. <- ww. <<- wSam # W[,i] # put in 
              #data1 <<- data.frame(data, ww, pweights)
     allModels[[i]] <- gamlss(allFormula[[i]], weights=ww.*pweights., data = data, family = allFamily[[i]], control=g.control, ...)
@@ -167,8 +168,8 @@ pweights. <- pweights. <<- if (missing(weights)) rep(1,N) else weights
     iter.num <- 1 
  trace.print <- 0 
     dev.fits <- rep(0,control$n.cyc)
-#------------------------------------------------
-# if require model for prior propabilities pi's
+#-------------------------------------------------------------------------------
+# if require model for prior propabilities pi's 
      modelPi <- if (pi.formula[[2]]==1) FALSE else TRUE
   if (modelPi)
    {
@@ -187,7 +188,7 @@ pweights. <- pweights. <<- if (missing(weights)) rep(1,N) else weights
    form.prob <-  update(pi.formula, res.var~.)# formula(paste("res.var~", pi.formula[[2]])) # get the formula 
         PROB <-  matrix(prob, ncol=K, nrow=N, byrow=TRUE) # expand prior prob
    }
-## EM starts here--------------------------------- 
+## EM starts here--------------------------------------------------------------- 
  while ( abs(olddv-newdv) > control$cc && iter.num < control$n.cyc ) # MS Wednesday, June 26, 2002 
   {
   for (i in 1:K)
@@ -227,9 +228,9 @@ dev.fits[iter.num] <- newdv
           iter.num <- iter.num+1    
   }
 if (control$plot==TRUE) plot(dev.fits[dev.fits!=0], type="l", xlab="EM iterations", ylab="-2 logLik")
-## EM finish here---------------------------- 
+## EM finish here--------------------------------------------------------------- 
 ## the output starts here 
-## residuals --------------------
+## residuals -------------------------------------------------------------------
                 WF <- matrix(0, ncol=K, nrow=N)
    if (modelPi)
     {
@@ -240,7 +241,8 @@ if (control$plot==TRUE) plot(dev.fits[dev.fits!=0], type="l", xlab="EM iteration
     for (i in 1:K)     WF[,i] <- prob[i]*get.the.p.function(allModels[[i]]) 
     }
                res <-qnorm(rowSums(WF))
-#------------------------------- 
+
+#------------------------------------------------------------------------------- 
 ## degrees of freedom
 df.fit <- 0 
 for (i in 1:K) df.fit <- df.fit + allModels[[i]]$df.fit
@@ -272,7 +274,44 @@ if (modelPi) on.exit(rm(ww.,pweights.,dataKK., envir=sys.frame(0)))
 else on.exit(rm(ww.,pweights., envir=sys.frame(0)))
 out
  }  
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+MX.control <- function(cc=0.0001, n.cyc=200, trace=FALSE, seed=NULL, plot=TRUE, sample=NULL, ...)
+{
+  ##list(cc=0.0001, n.cyc=100, trace=TRUE),
+  ##  Control iteration for GAMLSS
+  ##  Mikis Stasinopoulos Monday, March 25, 2002 at 16:17
+  ##
+  if(cc <= 0) {
+    warning("the value of cc supplied is zero or negative the default value of 0.0001 was used instead")
+    c.crit <- 0.0001}
+  if(n.cyc < 1) {
+    warning("the value of no cycles supplied is zero or negative the default value of 20 was used instead")
+    n.cyc <- 100}
+  if(is.logical(trace)) trace <- trace 
+  else if (is.numeric(trace) & trace <= 0) 
+  {warning("the value of trace supplied is less or equal t zero the default of 1 was used instead")
+   trace <- 1
+  }
+  seed <- if (is.null(seed) ) floor(runif(min=0, max=100000, n=1)) else seed 
+  if (!is.null(sample)) 
+  { if (sample>1||sample<0)
+  {
+    sample <-0.1 
+    warning("the value of sample supplied is not probability the default of 0.10 was used instead")
+  }
+  else sample <- sample  
+  } 
+  plot <- if(is.logical(plot)) plot else TRUE     
+  list(cc = cc, n.cyc = n.cyc, trace = trace, seed=seed, plot=plot, sample=sample)
+}
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# METHODS for "gamlssMX"
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 print.gamlssMX <- function (x, digits = max(3, getOption("digits") - 3), ...) 
 {
     K <- x$K 
@@ -318,41 +357,14 @@ print.gamlssMX <- function (x, digits = max(3, getOption("digits") - 3), ...)
         format(signif(x$sbc)), "\n")
     invisible(x)
 }
-#----------------------------------------------------------------------------------------
-MX.control <- function(cc=0.0001, n.cyc=200, trace=FALSE, seed=NULL, plot=TRUE, sample=NULL, ...)
-{
-##list(cc=0.0001, n.cyc=100, trace=TRUE),
-##  Control iteration for GAMLSS
-##  Mikis Stasinopoulos Monday, March 25, 2002 at 16:17
-##
-        if(cc <= 0) {
-warning("the value of cc supplied is zero or negative the default value of 0.0001 was used instead")
-                c.crit <- 0.0001}
-        if(n.cyc < 1) {
-warning("the value of no cycles supplied is zero or negative the default value of 20 was used instead")
-                n.cyc <- 100}
-        if(is.logical(trace)) trace <- trace 
-        else if (is.numeric(trace) & trace <= 0) 
-              {warning("the value of trace supplied is less or equal t zero the default of 1 was used instead")
-                trace <- 1
-              }
-        seed <- if (is.null(seed) ) floor(runif(min=0, max=100000, n=1)) else seed 
-        if (!is.null(sample)) 
-            { if (sample>1||sample<0)
-                {
-                sample <-0.1 
-                warning("the value of sample supplied is not probability the default of 0.10 was used instead")
-                }
-               else sample <- sample  
-            } 
-        plot <- if(is.logical(plot)) plot else TRUE     
-        list(cc = cc, n.cyc = n.cyc, trace = trace, seed=seed, plot=plot, sample=sample)
-}
-#----------------------------------------------------------------------------------------
-######################################################################################
+
+################################################################################
 #                         fitted.gamlssMX
-######################################################################################
-# MS is this justified if mu not the mean? also does it makes sense for other parameters??
+################################################################################
+# this gives the compoment fv if K is set otherwise average the componets 
+# using the fitted probabilities
+# MS is this justified if mu not the mean? 
+#  also does it makes sense for other parameters??
 fitted.gamlssMX<-function (object, K=1, ... ) 
 {
 if (K%in%seq(1:object$K))
@@ -367,40 +379,49 @@ else
   }
  x
 }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# coefficints of the componets
 coef.gamlssMX <- function(object, K=1, ...)
 {
 coef(object$models[[K]], ...)
 }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 formula.gamlssMX <- function(x, K=1, ...)
 {
 formula(x$models[[K]], ...)
 }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 model.matrix.gamlssMX <- function(object, K=1, ...)
 {
 model.matrix(object$models[[K]], ...)
 }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 terms.gamlssMX <- function(x, K=1, ...)
 {
 terms(x$models[[K]], ...)
 }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 predict.gamlssMX <- function(object, K=1, ...)
 {
 predict(object$models[[K]], ...)
 }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 residuals.gamlssMX <- function(object,...)
 {
 object$residuals
 }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # this function fits n models with different starting values 
 # and select the one with smallest deviance 
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # this function fits n models with different starting values 
 # and select the one with smallest deviance 
 # last modification Thursday, April 30, 2009 
@@ -445,9 +466,9 @@ gamlssMXfitscall[[1]] <- as.name("gamlssMX")
           model$extra <- list(dev=dev, seed=seed, which=II)
  model
 }
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 update.gamlssMX <- function (object, 
                           formula., 
                           ..., 
@@ -486,10 +507,10 @@ update.gamlssMX <- function (object,
         eval(call, parent.frame())
     else call
 }
-######################################################################################
+################################################################################
 #
-#----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # this is a function to calculate the pdf of y fY(y)=p1*f1(y)+p2*f(y), of a MX model
 # MS + BR 
 dMX <- function(y, 
@@ -498,9 +519,9 @@ dMX <- function(y,
                  nu = list(nu1=1,nu2=1), 
                 tau = list(tau1=1,tau2=1), 
                  pi = list(pi1=.2,pi2=.8),
-                #  K = 2, 
+                # K = 2, 
              family = list(fam1="NO", fam2="NO"),  
-                 log = FALSE,
+                log = FALSE,
                  ...)
   {
 #  gamlss.bi.list <- c("BI", "Binomial", "BB", "Beta Binomial")
@@ -539,22 +560,23 @@ dMX <- function(y,
      }           
    switch(nopar,  
       {lik <- if (fname%in%.gamlss.bi.list){eval(call(dfun, x=y, bd=bd,  mu=mu[[i]]))}
-            else   eval(call(dfun, x=y, mu=mu[[i]]))
+            else  eval(call(dfun, x=y, mu=mu[[i]]))
       },
       {lik <- if (fname%in%.gamlss.bi.list) eval(call(dfun, x=y, bd=bd,  mu=mu[[i]], sigma=sigma[[i]]))
-            else   eval(call(dfun, x=y, mu=mu[[i]], sigma=sigma[[i]])) 
+            else  eval(call(dfun, x=y, mu=mu[[i]], sigma=sigma[[i]])) 
       },
       {lik <- if (fname%in%.gamlss.bi.list) eval(call(dfun, x=y, bd=bd,  mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]])) 
             else eval(call(dfun,x=y, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]]))},
       {lik <-  if (fname%in%.gamlss.bi.list) eval(call(dfun, x=y, bd=bd,  mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]], tau=tau[[i]])) 
             else eval(call(dfun,x=y, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]], tau=tau[[i]]))})
     Prob[,i]<-pi[[i]]*lik
-    } 
-            fy <-rowSums(Prob)
+    }  # finish go throught the components
+       fy <- rowSums(Prob)
        fy <- if(log == FALSE) fy else log(fy)
        fy 
   }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # this is a function to calculate the cdf y from a MX model
 pMX <- function(q, 
                  mu = list(mu1=1,mu2=5), 
@@ -568,14 +590,14 @@ pMX <- function(q,
                  ...)
   {
  # gamlss.bi.list<-c("BI", "Binomial", "BB", "Beta Binomial")
- ## checking the probabilities 
-      sump <- 0
-        K <- length(pi) 
+## checking the probabilities 
+       sump <- 0
+          K <- length(pi) 
   for (i in 1:K) sump <-pi[[i]]+ sump 
   if (any(sump!=1)) stop(paste("the vector pi should sum to 1"))
  ## get the length of q and the length of the parameters
  if(is.null(dim(q))) N <- length(q) else N <- dim(q)[1]  
-     Prob <- matrix(1, nrow=N, ncol=K ) # rep(prob,rep(N,K))  
+       Prob <- matrix(1, nrow=N, ncol=K ) # rep(prob,rep(N,K))  
      for (i in 1:K)
    { 
         fam <- as.gamlss.family(family[[i]])
@@ -617,4 +639,5 @@ pMX <- function(q,
        fy <- if(log == FALSE) fy else log(fy)
        fy 
   }
-#----------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
