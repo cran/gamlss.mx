@@ -7,10 +7,13 @@ export(gamlssMX, MX.control, gamlssMXfits,
 
 # datasets #export(lange)
 
-importFrom(stats,  family, fitted)
+import(stats)
+import(gamlss)
 importFrom(nnet, nnet, multinom)
 importFrom(gamlss.dist, as.gamlss.family, NO)
-import(gamlss)
+importFrom(graphics, lines, par, plot, rug)
+
+
 #importFrom(MASS)
 # needed for gamlss family
 #export(as.family, gamlss.family, gamlss.family.default, as.gamlss.family)
