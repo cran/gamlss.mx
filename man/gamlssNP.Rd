@@ -12,7 +12,7 @@ Jochen Einbeck, John Hinde and Ross Darnell.
 gamlssNP(formula, random = ~1, family = NO(), data = NULL, K = 4, 
           mixture = c("np", "gq"), 
           tol = 0.5, weights, pluginz, control = NP.control(...), 
-          g.control = gamlss.control(trace = FALSE), ...)
+          g.control = gamlss.control(trace = FALSE, ...), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

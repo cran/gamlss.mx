@@ -1,6 +1,17 @@
 #-------------------------------------------------------------------------------
 # TO DO
-# i) Ardo residuals ??
+# i) the residuals have now two options prior post
+# ii) the fitted values K=0 now produce the prior average 
+# do we need a function to calculate the mean?
+#mean <- rep(0,45)
+#for (i in 1:45)
+#{
+#  fnLO <- plotMX(readLO, observation=i)
+#  f <-function(x) x*fnLO(x)
+#  mean[i] <- integrate(f, -Inf, Inf)$value
+#}
+# do ebp can be obtain using fitted? what about the other parameters
+# 
 #-------------------------------------------------------------------------------
 gamlssNP<-function(formula,
                     random =~1,
@@ -12,7 +23,7 @@ gamlssNP<-function(formula,
                     weights,# we have to decide how this will be in Randon eff
                     pluginz,
                    control = NP.control(...),
-                 g.control = gamlss.control(trace=FALSE), 
+                 g.control = gamlss.control(trace=FALSE, ...), 
                     ...)
 {
 ##  Nonparametric ML/Gaussian quadrature macros for maximum likelihood
@@ -23,6 +34,19 @@ gamlssNP<-function(formula,
 #-------------------------------------------------------------------------------
 ## functions within gamlssNP
 #-------------------------------------------------------------------------------
+# this is to replicate rqres within gamlss enviroment DS Friday, March 31, 2006 at 10:30
+rqres <- function (pfun = "pNO", 
+                   type = c("Continuous", "Discrete", "Mixed"),
+                   censored = NULL,  
+                   ymin = NULL, 
+                   mass.p = NULL, 
+                   prob.mp = NULL,
+                   y = y,
+                   ... )
+{ }
+body(rqres) <-  eval(quote(body(rqres)), envir = getNamespace("gamlss"))
+##------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 .gamlss.bi.list <- eval(quote(.gamlss.bi.list), envir = getNamespace("gamlss"))
 ## expanding the data ----------------------------------------------------------
 expand.vc <- function(x,ni)
@@ -55,6 +79,7 @@ weightslogl.calc.w <- function(p,fjk,weights){
      pf <- exp(logpf)# p*fjk
     Spf <- as.vector(apply(pf,1,sum))#weights denominator length N
       w <- pf/Spf
+  # no check is done here for extreme weights
  ML.dev <- -2*sum(weights*log(Spf))
   #l <- sum(log(Spf)) # log likelihood
   list(w=w,ML.dev=ML.dev)
@@ -121,17 +146,17 @@ if (!is.gamlss(object))  stop(paste("This is not an gamlss object", "\n", ""))
    fname <- object$family[[1]]
  DistPar <- object$parameters
    nopar <- length(DistPar) 
-    dfun <- paste("p",fname,sep="")
+  cdffun <- paste("p",fname,sep="")
  # binomial denominators
  switch(nopar,  
-    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu")))
-             else  eval(call(dfun,q=object$y, mu=fitted(object,"mu")))},
-    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma")))
-             else  eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"))) },
-    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu")))
-             else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu")))},
-    {pfun <-  if (fname%in%.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu"),  tau=fitted(object,"tau")))
-             else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))})
+    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(cdffun,q=object$y, bd=object$bd,  mu=fitted(object,"mu")))
+             else  eval(call(cdffun,q=object$y, mu=fitted(object,"mu")))},
+    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(cdffun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma")))
+             else  eval(call(cdffun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"))) },
+    {pfun <- if (fname%in%.gamlss.bi.list)  eval(call(cdffun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu")))
+             else eval(call(cdffun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu")))},
+    {pfun <-  if (fname%in%.gamlss.bi.list)  eval(call(cdffun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu"),  tau=fitted(object,"tau")))
+             else eval(call(cdffun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))})
 pfun 
 }             
 #-------------------------------------------------------------------------------
@@ -340,8 +365,9 @@ fitout <- if (iter==1)
       }
   }
   mass.points <- masses <- NULL
-    np <- length(fitout$mu.coef)
-   ebp <- apply(ww*matrix(fitout$mu.lp,N,K,byrow=FALSE),1,sum)  #Emp. Bayes Pred. (Aitkin, 96)
+           np <- length(fitout$mu.coef)
+         ebp <- apply(ww*matrix(fitout$mu.lp,N,K,byrow=FALSE),1,sum)  #Emp. Bayes Pred. (Aitkin, 96)
+      mu.ebp <- family$mu.linkinv(ebp)
   #m <- seq(1,np)[substr(attr(fitout$mu.coefficients,'names'),1,4)=='MASS']
   #mass.points <- masspoint c(coef(fitout)[ grep("(Intercept)",attcoef)], coef(fitout)[grep("(Intercept)",attcoef)]+
   #                                  coef(fitout)[grep("MASS",attcoef)] )# #fitout$mu.coefficients[m]
@@ -384,17 +410,20 @@ fitout <- if (iter==1)
 ## 
 ## residuals ----
  # there is a problem with binomial also for "qp" prob is fixed 
-              
+               
                prob <- apply(matrix(ww,ncol=K),2,mean)
-                 WF <- matrix(get.the.p.function(fitout), ncol=K, nrow=N) 
-                 for (i in 1:K)     WF[,i] <- prob[i]*WF[,i] 
-                res <- qnorm(rowSums(WF))
-#               res2 <- apply(ww*matrix(fitout$mu.lp,N,K,byrow=FALSE),1,sum) 
+         WF1 <- WF <- matrix(get.the.p.function(fitout), ncol=K, nrow=N) 
+                 for (i in 1:K)     WF[,i] <- prob[i]*WF[,i]
+
+                res <- qnorm(rowSums(WF))# rowSums(WF)=bval
+               res2 <- qnorm(apply(ww*WF1,1,sum))
+               
 #get.the.p.function(fitout)
 #WF <- matrix(0, ncol=K, nrow=N)
 # for (i in 1:K)     WF[,i] <- prob[i]*get.the.p.function(allModels[[i]]) 
 #res <-qnorm(rowSums(WF))
 #----------------
+
       fitout$df.fit <- if (mixture=="np") fitout$df.fit+K-1 else fitout$df.fit
  fitout$df.residual <- N-fitout$df.fit 
   fitout$G.deviance <- ML.dev[iter]
@@ -406,6 +435,7 @@ fitout <- if (iter==1)
        fitout$data  <- data
       # fitout$dataK <- datak
          fitout$ebp <- ebp
+      fitout$mu.ebp <- mu.ebp
       fitout$EMiter <- iter - 1
     fitout$pweights <- pweights
  fitout$EMconverged <- converged
@@ -413,6 +443,7 @@ fitout <- if (iter==1)
          fitout$sbc <- fitout$G.deviance+log(N)*fitout$df.fit 
 fitout$allresiduals <- fitout$residuals
    fitout$residuals <- res
+  fitout$Presiduals <- res2
            fitout$N <- N  
            fitout$K <- K
        fitout$type  <- "Mixture"  
@@ -447,7 +478,7 @@ fitout$allresiduals <- fitout$residuals
   fitout$mass.points <- fitout$coef[1]+fitout$coef[np]*z0
   fitout$orig.family <- fitout$family
      fitout$family   <- paste( fitout$family[[1]], "Mixture with NO")           
-         fitout$prob <- list(tmp1$weight)          
+         fitout$prob <- tmp1$weight         
    #   class(fitout) <- list("gamlssNO", "gamlss")   
     }
       class(fitout) <- list("gamlssNP", "gamlss")
@@ -533,20 +564,27 @@ print.gamlssNP <- function (x, digits = max(3, getOption("digits") - 3), ...)
     invisible(x)
 }
 #-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------  
 # This need attention MS
-fitted.gamlssNP<-function (object, K=1, what = c("mu", "sigma", "nu", "tau"), ... ) 
+fitted.gamlssNP<-function (object, K=0,  what = c("mu", "sigma", "nu", "tau"), parameter= NULL, ... ) 
 {  
-  what <- match.arg(what)
-if (K%in%seq(1:object$K))
+  what <- if (!is.null(parameter))  {
+    match.arg(parameter, choices=c("mu", "sigma", "nu", "tau"))} else  match.arg(what)
+  if (!what%in%object$par) stop(paste(what,"is not a parameter in the object","\n"))
+  if (what!="mu") K=1
+  if (K%in%seq(1:object$K))
  {
  index <- seq(1+(K-1)*object$N, K*object$N) 
      x <- object[[paste(what,"fv",sep=".")]][index] #fitted(object$mu.fv, ...)[index]
  }
-else 
-  { # ?? THIS IS NOT WORKING  MS 
-   x <-  object[[paste(what,"fv",sep=".")]]
+else if (K==0)
+  { # 21-11-15  MS 
+   x <-  rowSums(matrix(object$mu.fv, nrow=length(object$ebp))%*%object$prob)
   }
+else if (K=="BLUP"||K=="EBP")
+{
+  x <- object$mu.ebp# THIS IS NOT CORRECT IT NEED THE LINK FUNCTION
+}
  x
 }
 #-------------------------------------------------------------------------------
@@ -561,14 +599,14 @@ family.gamlssNP <- function(object, ...) {
 # the following options have been used for the BCT paper 
 # par(mfrow=c(2,2), mar=par("mar")+c(0,1,0,0), col.axis="blue4", col="blue4", col.main="blue4",col.lab="blue4",pch="+",cex=.45, cex.lab=1.2, cex.axis=1, cex.main=1.2  )
 #-------------------------------------------------------------------------------
-plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRUE, ...) 
+plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRUE, type="prior", ...) 
 {
     if (!is.gamlss(x))  stop(paste("This is not an gamlss object", "\n", ""))
 # chech for the residuals 
     if (is.null(x$residuals)) #    
          stop(paste("There are no randomised quantile residuals"))
 # whether index or x-variable
-    residx <- resid(x) # get the residuals 
+    residx <- resid(x, type=type) # get the residuals 
          w <- x$weights
     xlabel <- if(!missing(xvar)) deparse(substitute(xvar)) else deparse(substitute(index))
     if(is.null(xvar))  xvar <- seq(1,length(resid(x)),1) # MS
@@ -648,9 +686,10 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
     par(op)
 }
 #-------------------------------------------------------------------------------
-residuals.gamlssNP <- function(object,...)
+residuals.gamlssNP <- function(object,type=c("prior","post"), ...)
 {
-object$residuals
+  type <- match.arg(type)
+  switch(type,"prior"=object$residuals,"post"= object$Presiduals)
 }
 #-------------------------------------------------------------------------------
 #par(mfrow=c(2,2), mar=par("mar")+c(0,1,0,0), col.axis="blue4", col="blue4", col.main="blue4",col.lab="blue4",pch="+",cex=.45, cex.lab=1.2, cex.axis=1, cex.main=1.2  )
@@ -736,3 +775,68 @@ gauss.quad <- function (n, kind = "legendre", alpha = 0, beta = 0)
     list(nodes = x, weights = w)
 }
 #-------------------------------------------------------------------------------
+# getting the pdf function for spesific observation number
+getpdfNP <- function(object=NULL, observation=1)
+{
+  if (class(object)[1]!="gamlssNP") stop("the object should be an gamlssNP object")
+  .gamlss.bi.list <- eval(quote(.gamlss.bi.list), envir = getNamespace("gamlss"))
+                K <- object$K
+
+           family <- rep(object$orig.family[1],K) 
+        ParamList <- list()
+               MU <- SIGMA <- NU<- TAU <- PI <- npar<- list()
+  #modelForPi  <- class(object$model.pi)[1]=="multinom"
+  for (i in 1:K)
+  {
+  
+    ParamList[[i]] <- object$parameters
+    if ("mu"%in%ParamList[[i]])
+      MU[[i]] <- fitted(object, K=i)[observation]
+    if ("sigma"%in%ParamList[[i]])
+      SIGMA[[i]] <- fitted(object, K=i, parameter="sigma")[observation]
+    if ("nu"%in%ParamList[[i]])
+      NU[[i]] <- fitted(object, K=i, parameter="nu")[observation]
+    if ("tau"%in%ParamList[[i]])
+      TAU[[i]] <- fitted(object, K=i, parameter="tau")[observation]
+    PI[[i]] <-  object$prob[i]
+    npar[[i]] <- length(ParamList[[i]])
+  }  
+  npar <- unlist(npar)
+  nopar <- npar[1]
+  plotfun <- function(y)
+  {  
+    if (object$orig.family[1]%in%.gamlss.bi.list) 
+    {
+      yy <- object$y
+      bd <- object$bd 
+      switch(nopar,
+             dMX(y, bd=bd, mu=MU, pi=PI, family=family),      
+             dMX(y, bd=bd, mu=MU, sigma=SIGMA, pi=PI, family=family),
+             dMX(y, bd=bd, mu=MU, sigma=SIGMA, nu=NU, pi=PI, family=family),
+             dMX(y, bd=bd, mu=MU, sigma=SIGMA, nu=NU, tau=TAU, pi=PI, family=family))  
+    } else 
+    {
+      switch(nopar,
+             dMX(y, mu=MU, pi=PI, family=family),      
+             dMX(y, mu=MU, sigma=SIGMA, pi=PI, family=family),
+             dMX(y, mu=MU, sigma=SIGMA, nu=NU, pi=PI, family=family),
+             dMX(y, mu=MU, sigma=SIGMA, nu=NU, tau=TAU, pi=PI, family=family))
+    }  
+  }
+  plotfun
+}
+#-------------------------------------------------------------------------------
+plotMP <- function(x, y, prob,theta = 20, phi = 20, expand = 0.5, col = "lightblue", xlab="intercept",ylab="slope",... )
+{
+     lx <- length(x)
+  if (lx!=length(y)||lx!=length(prob)) stop("x, y and prob not have equal length")
+     rx <- (range(x)[2] - range(x)[1])*0.1
+     x1 <- seq(range(x)[1]-rx,range(x)[2]+rx, length=20)
+     ry <- (range(y)[2]-range(y)[1])*0.1
+     y1 <- seq(range(y)[1]-ry,range(y)[2]+ry, length=20)
+      F <- function(x,y) {l<-length(x); rep(0,l)}
+      z <- outer(x1, y1, F)
+    res <- persp(x1, y1, z,  zlim=c(0, max(prob+0.05)), theta = theta, phi = phi, expand = expand, col = col, xlab=xlab, ylab=ylab, zlab="probability", ...)
+    points(trans3d(x, y, prob, pmat = res), col = 2, pch =16)
+  for (i in 1:lx) lines(trans3d( c(x[i],x[i]), c(y[i],y[i]), c(0,prob[i]), pmat = res), col = 2, pch =16)
+}

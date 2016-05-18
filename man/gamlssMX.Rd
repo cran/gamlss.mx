@@ -9,8 +9,8 @@ The  function \code{gamlssMX} is design for fitting a K fold non parametric mixt
 \usage{
 gamlssMX(formula = formula(data), pi.formula = ~1, 
          family = "NO", weights, K = 2, prob = NULL, 
-         data = sys.parent(), control = MX.control(), 
-         g.control = gamlss.control(trace = FALSE), 
+         data = sys.parent(), control = MX.control(...), 
+         g.control = gamlss.control(trace = FALSE, ...), 
          zero.component = FALSE,   ...)
 gamlssMXfits(n = 5, formula = formula(data), pi.formula = ~1, 
          family = "NO", weights, K = 2, prob = NULL, 

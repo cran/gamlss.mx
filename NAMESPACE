@@ -3,7 +3,7 @@
 
 export(gamlssMX, MX.control, gamlssMXfits, 
        gamlssNP, NP.control,
-       dMX, pMX)
+       dMX, pMX, getpdfMX, getpdfNP, plotMP)
 
 # datasets #export(lange)
 
@@ -11,7 +11,8 @@ import(stats)
 import(gamlss)
 importFrom(nnet, nnet, multinom)
 importFrom(gamlss.dist, as.gamlss.family, NO)
-importFrom(graphics, lines, par, plot, rug)
+importFrom(graphics, lines, par, plot, rug, persp, points)
+importFrom("grDevices", "trans3d")
 
 
 #importFrom(MASS)

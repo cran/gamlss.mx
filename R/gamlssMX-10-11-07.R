@@ -5,9 +5,13 @@
 ## latest change Tuesday, April 10, 2007 at 08:54
 ## Some of the models which can be fitted 
 ## with the function gamlssNP can be identical 
-## it needs a summary functions  
-## In this version the prior probabilities
-## pi can be modelled 
+## In this version the prior probabilities pi can be modelled 
+## TO DO 
+## it needs a summary functions  but the EM-algorithm SE's are not correct
+## do we need EBP here?
+## do we need means? 
+## the plotMX() need modification for BI type data Done but not checked
+## 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
@@ -18,15 +22,28 @@ gamlssMX  <- function ( formula = formula(data),
                               K = 2, 
                            prob = NULL,
                            data = sys.parent(),
-                        control = MX.control(), 
-                      g.control = gamlss.control(trace=FALSE),
+                        control = MX.control(...), 
+                      g.control = gamlss.control(trace=FALSE,...),
                  zero.component = FALSE,     
                       ...)
  {
 #-------------------------------------------------------------------------------
+# this is to replicate rqres within gamlss enviroment DS Friday, March 31, 2006 at 10:30
+rqres <- function (pfun = "pNO", 
+                   type = c("Continuous", "Discrete", "Mixed"),
+                   censored = NULL,  
+                   ymin = NULL, 
+                   mass.p = NULL, 
+                   prob.mp = NULL,
+                   y = y,
+                   ... )
+{ }
+body(rqres) <-  eval(quote(body(rqres)), envir = getNamespace("gamlss"))
+##------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 .gamlss.bi.list <- eval(quote(.gamlss.bi.list), envir = getNamespace("gamlss"))
 # extra functions within -------------------------------------------------------
-# for getting the commulative function
+# for getting the commulative function------------------------------------------
 get.the.p.function <- function(object, ...)
 {
 #gamlss.bi.list <- c("BI", "Binomial", "BB", "Beta Binomial")
@@ -160,7 +177,7 @@ allModels <- vector("list",K)
  if(zero.component == TRUE) W[,KK] <- prob[KK]*ifelse(Y==0,1,0)
       SumLik <- rowSums(W)
            W <- W/SumLik
-           W <- ifelse(W<1e-20,0,W)
+           W <- ifelse(W<1e-10,0,W)
         prob <- colSums(W)/N
  # -2 * logLikelihood
        newdv <- -2*sum(log(SumLik))    # the global deviance
@@ -202,7 +219,7 @@ allModels <- vector("list",K)
       }
             SumLik <-rowSums(W)
                  W <- W/SumLik 
-                 W <- ifelse(W<1e-20,0,W) 
+                 W <- ifelse(W<1e-10,0,W) 
                 di <- -2*log(SumLik) 
              olddv <- newdv
              newdv <- sum(di)
@@ -231,7 +248,7 @@ if (control$plot==TRUE) plot(dev.fits[dev.fits!=0], type="l", xlab="EM iteration
 ## EM finish here--------------------------------------------------------------- 
 ## the output starts here 
 ## residuals -------------------------------------------------------------------
-                WF <- matrix(0, ncol=K, nrow=N)
+                WF <- WF2 <- matrix(0, ncol=K, nrow=N)
    if (modelPi)
     {
      for (i in 1:K)     WF[,i] <- PROB[,i]*get.the.p.function(allModels[[i]]) 
@@ -241,7 +258,8 @@ if (control$plot==TRUE) plot(dev.fits[dev.fits!=0], type="l", xlab="EM iteration
     for (i in 1:K)     WF[,i] <- prob[i]*get.the.p.function(allModels[[i]]) 
     }
                res <-qnorm(rowSums(WF))
-
+    for (i in 1:K) WF2[,i] <- W[,i]*get.the.p.function(allModels[[i]])
+              res2 <-qnorm(rowSums(WF2))   
 #------------------------------------------------------------------------------- 
 ## degrees of freedom
 df.fit <- 0 
@@ -267,6 +285,7 @@ out <- list(models = allModels,
                  N = N,
            weights = pweights., 
          residuals = res,
+        Presiduals = res2,
               seed = control$seed
                  )
 class(out) <- list("gamlssMX", "gamlss")
@@ -412,9 +431,10 @@ predict(object$models[[K]], ...)
 }
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-residuals.gamlssMX <- function(object,...)
+residuals.gamlssMX <- function(object,type=c("prior","post"), ...)
 {
-object$residuals
+  type <- match.arg(type)
+  switch(type,"prior"=object$residuals,"post"= object$Presiduals)
 }
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
@@ -473,6 +493,7 @@ update.gamlssMX <- function (object,
                           formula., 
                           ..., 
                           what = c("mu", "sigma", "nu", "tau"),
+                          parameter= NULL,
                           evaluate = TRUE) 
 {
     call <- object$call
@@ -481,7 +502,9 @@ update.gamlssMX <- function (object,
     extras <- match.call(expand.dots = FALSE)$...
     if (!missing(formula.)) 
         {
-        what <- match.arg(what) 
+      what <- if (!is.null(parameter))  {
+        match.arg(parameter, choices=c("mu", "sigma", "nu", "tau"))} else  match.arg(what)
+      if (!what%in%object$par) stop(paste(what,"is not a parameter in the object","\n")) 
         if (what=="mu") 
          { call$formula <- update.formula(formula(object,what), formula.) }
         else  
@@ -527,10 +550,11 @@ dMX <- function(y,
 #  gamlss.bi.list <- c("BI", "Binomial", "BB", "Beta Binomial")
 #  .gamlss.bi.list<-c("BI", "Binomial", "BB", "Beta Binomial")
  ## checking the probabilities 
-     sump <- 0
-        K <- length(pi) ## set the length using the length of propabilities
-  for (i in 1:K) sump <-pi[[i]]+ sump 
-  if (any(sump!=1)) stop(paste("the vector pi should sum to 1"))
+        K <- length(pi) 
+     sump <- sum(unlist(pi))
+       ## set the length using the length of propabilities
+#  for (i in 1:K) sump <-pi[[i]]+ sump 
+  if (!(9.9999999999>sump)&&(sump<1.00000000001)) stop(paste("the vector pi should sum to 1"))
  ## get the length of y and the length of the parameters
  if(is.null(dim(y))) N <- length(y) else N <- dim(y)[1]  
        Prob <- matrix(1, nrow=N, ncol=K ) # rep(prob,rep(N,K)) 
@@ -591,10 +615,11 @@ pMX <- function(q,
   {
  # gamlss.bi.list<-c("BI", "Binomial", "BB", "Beta Binomial")
 ## checking the probabilities 
-       sump <- 0
           K <- length(pi) 
-  for (i in 1:K) sump <-pi[[i]]+ sump 
-  if (any(sump!=1)) stop(paste("the vector pi should sum to 1"))
+       sump <- sum(unlist(pi))
+   if (sump!=1) stop(paste("the vector pi should sum to 1"))          
+#  for (i in 1:K) sump <-pi[[i]]+ sump 
+  if (!(9.9999999999>sump)&&(sump<1.00000000001)) stop(paste("the vector pi should sum to 1"))
  ## get the length of q and the length of the parameters
  if(is.null(dim(q))) N <- length(q) else N <- dim(q)[1]  
        Prob <- matrix(1, nrow=N, ncol=K ) # rep(prob,rep(N,K))  
@@ -641,3 +666,79 @@ pMX <- function(q,
   }
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
+# A function creating a function which can be use to plot a 
+# fitted mixture distrubution
+# it needs a gamlssMX object and the observation number 
+getpdfMX <- function(object=NULL, observation=1)
+{
+  if (class(object)[1]!="gamlssMX") stop("the object should be an gamlssMX object")
+.gamlss.bi.list <- eval(quote(.gamlss.bi.list), envir = getNamespace("gamlss"))
+          K <- object$K
+     family <- object$family
+  ParamList <- list()
+         MU <- SIGMA <- NU<- TAU <- PI <- npar<- list()
+modelForPi  <- class(object$model.pi)[1]=="multinom"
+  for (i in 1:K)
+  {
+    ParamList[[i]] <- object$models[[i]]$parameters
+    if ("mu"%in%ParamList[[i]])
+          MU[[i]] <- fitted(object, K=i)[observation]
+    if ("sigma"%in%ParamList[[i]])
+       SIGMA[[i]] <- fitted(object, K=i, parameter="sigma")[observation]
+    if ("nu"%in%ParamList[[i]])
+          NU[[i]] <- fitted(object, K=i, parameter="nu")[observation]
+    if ("tau"%in%ParamList[[i]])
+         TAU[[i]] <- fitted(object, K=i, parameter="tau")[observation]
+          PI[[i]] <- if (modelForPi)  object$prob[observation,i]  else object$prob[i]
+        npar[[i]] <- length(ParamList[[i]])
+  }  
+        npar <- unlist(npar)
+  if (any(npar==npar[1])) 
+    nopar <- npar[1] else 
+      stop("the different distributions should have same number of parameters for the function to work")
+  plotfun <- function(y)
+  {  
+    if (object$family[1]%in%.gamlss.bi.list) 
+    {
+      yy <- object$y
+      bd <- object$bd 
+      switch(nopar,
+             dMX(y, bd=bd, mu=MU, pi=PI, family=family),      
+             dMX(y, bd=bd, mu=MU, sigma=SIGMA, pi=PI, family=family),
+             dMX(y, bd=bd, mu=MU, sigma=SIGMA, nu=NU, pi=PI, family=family),
+             dMX(y, bd=bd, mu=MU, sigma=SIGMA, nu=NU, tau=TAU, pi=PI, family=family))  
+    } else 
+    {
+      switch(nopar,
+             dMX(y, mu=MU, pi=PI, family=family),      
+             dMX(y, mu=MU, sigma=SIGMA, pi=PI, family=family),
+             dMX(y, mu=MU, sigma=SIGMA, nu=NU, pi=PI, family=family),
+             dMX(y, mu=MU, sigma=SIGMA, nu=NU, tau=TAU, pi=PI, family=family))
+    }  
+  }
+  plotfun
+}
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# at the moment only for -Inf +Inf continuous 
+# " discrete? 
+meanMX <- function(obj, observations=NULL, limit=c(-Inf, Inf))
+{
+  # checking whether a gamlss object
+  if (class(obj)[1]!="gamlssMX") stop("the object should be an gamlssMX object")
+  #   
+   obs <- if (is.null(observations)) 1:obj$N else observations
+  mean <- rep(0, length(obs))
+     j <- 1
+  for (i in obs)
+  {
+    fnLO <- getpdfMX(obj, observation=i)
+    f <-function(x) x*fnLO(x)
+    mean[j] <- integrate(f, limit[1], limit[2])$value
+    j <- j+1
+  }
+  mean
+}
+# 
+# 
