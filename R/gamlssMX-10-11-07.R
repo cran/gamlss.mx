@@ -37,8 +37,10 @@ if (!is.gamlss(object))  stop(paste("This is not an gamlss object", "\n", ""))
              else  eval(call(dfun,q=object$y, mu=fitted(object,"mu")))},
     {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma")))
              else  eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"))) },
-    {pfun <- eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu")))},
-    {pfun <- eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))})
+    {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"), nu=fitted(object,"nu")))
+             else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu")))},
+    {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))
+             else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))})
 pfun 
 }
 #----------------------------------------------------------
@@ -52,12 +54,14 @@ if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
    nopar <- length(DistPar) 
     dfun <- paste("d",fname,sep="")
  switch(nopar,  
-    {lik <-if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu")))
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu")))
              else   eval(call(dfun, x=obj$y, mu=fitted(obj)))},
-    {lik <-if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma") ))
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma") ))
              else   eval(call(dfun,x=obj$y, mu=fitted(obj), sigma=fitted(obj,"sigma"))) },
-    {lik <- eval(call(dfun,x=obj$y, mu=fitted(obj), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu")))},
-    {lik <- eval(call(dfun,x=obj$y, mu=fitted(obj), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau")))})
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu") ))
+            else eval(call(dfun,x=obj$y, mu=fitted(obj), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu")))},
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau") ))
+            else eval(call(dfun,x=obj$y, mu=fitted(obj), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau")))})
 lik
 }           
 #----------------------------------------------------------
@@ -539,8 +543,10 @@ dMX <- function(y,
       {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=y, bd=bd,  mu=mu[[i]], sigma=sigma[[i]]))
             else   eval(call(dfun, x=y, mu=mu[[i]], sigma=sigma[[i]])) 
       },
-      {lik <- eval(call(dfun,x=y, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]]))},
-      {lik <- eval(call(dfun,x=y, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]], tau=tau[[i]]))})
+      {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=y, bd=bd,  mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]])) 
+            else eval(call(dfun,x=y, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]]))},
+      {lik <-  if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=y, bd=bd,  mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]], tau=tau[[i]])) 
+            else eval(call(dfun,x=y, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]], tau=tau[[i]]))})
     Prob[,i]<-pi[[i]]*lik
     } 
             fy <-rowSums(Prob)
@@ -560,7 +566,7 @@ pMX <- function(q,
                  log = FALSE,
                  ...)
   {
-  gamlss.bi.list<-c("BI", "Binomial", "BB", "Beta Binomial")
+ # gamlss.bi.list<-c("BI", "Binomial", "BB", "Beta Binomial")
  ## checking the probabilities 
       sump <- 0
         K <- length(pi) 
@@ -594,14 +600,16 @@ pMX <- function(q,
         }
      }            
    switch(nopar,  
-     {lik <- if (fname%in%gamlss.bi.list) eval(call(dfun, q=q, bd=bd[[i]],  mu=mu[[i]]))
+     {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, q=q, bd=bd[[i]],  mu=mu[[i]]))
             else   eval(call(dfun, q=q, mu=mu[[i]]))
      },
-     {lik <- if (fname%in%gamlss.bi.list) eval(call(dfun, q=q, bd=bd[[i]],  mu=mu[[i]], sigma=sigma[[i]]))
+     {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, q=q, bd=bd[[i]],  mu=mu[[i]], sigma=sigma[[i]]))
             else   eval(call(dfun, q=q, mu=mu[[i]], sigma=sigma[[i]])) 
      },
-     {lik <- eval(call(dfun,q=q, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]]))},
-     {lik <- eval(call(dfun,q=q, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]], tau=tau[[i]]))})
+     {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, q=q, bd=bd[[i]],  mu=mu[[i]], sigma=sigma[[i]],  nu=nu[[i]]))
+            else eval(call(dfun,q=q, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]]))},
+     {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, q=q, bd=bd[[i]],  mu=mu[[i]], sigma=sigma[[i]],  nu=nu[[i]], tau=tau[[i]]))
+            else eval(call(dfun,q=q, mu=mu[[i]], sigma=sigma[[i]], nu=nu[[i]], tau=tau[[i]]))})
     Prob[,i]<-pi[[i]]*lik
     } 
             fy <-rowSums(Prob)

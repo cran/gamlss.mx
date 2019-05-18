@@ -65,7 +65,7 @@ if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
    nopar <- length(DistPar) 
     dfun <- paste("d",fname,sep="")
  # the first time the length of y is N not NxK so we recalculate y
-    if (fname%in%gamlss.bi.list) 
+    if (fname%in%gamlss:::.gamlss.bi.list) 
         {
         yy <- rep(obj$y, K)
         bd <- rep(obj$bd, K) 
@@ -78,31 +78,34 @@ if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
         if (("nu"%in%obj$parameters)) nu <- rep(fitted(obj,"nu"),K) 
         if (("tau"%in%obj$parameters)) tau <- rep(fitted(obj,"tau"),K)  
  switch(nopar,  
-    {lik <- if (fname%in%gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, log=TRUE))
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, log=TRUE))
             else   eval(call(dfun, x=yy, mu=mu, log=TRUE))},
-    {lik <- if (fname%in%gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, log=TRUE ))
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, log=TRUE ))
             else   eval(call(dfun, x=yy, mu=mu, sigma=sigma, log=TRUE)) },
-    {lik <- eval(call(dfun,x=yy, mu=mu, sigma=sigma, nu=nu ,log=TRUE))},
-    {lik <- eval(call(dfun,x=yy, mu=mu, sigma=sigma, nu=nu, tau=tau,log=TRUE))})
+    {lik <-  if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, nu=nu, log=TRUE ))
+            else eval(call(dfun,x=yy, mu=mu, sigma=sigma, nu=nu ,log=TRUE))},
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun, x=yy, bd=bd,  mu=mu, sigma=sigma, nu=nu, tau=tau, log=TRUE ))
+            else eval(call(dfun,x=yy, mu=mu, sigma=sigma, nu=nu, tau=tau,log=TRUE))})
 lik
 }
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
 get.log.likelihood <- function(obj, ...)
 {
-gamlss.bi.list <- c("BI", "Binomial", "BB", "Beta Binomial")
 if (!is.gamlss(obj))  stop(paste("This is not an gamlss object", "\n", ""))
    fname <- obj$family[[1]]
  DistPar <- obj$parameters
    nopar <- length(DistPar) 
     dfun <- paste("d",fname,sep="")
  switch(nopar,  
-    { lik <- if (fname%in%gamlss.bi.list) eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), log=TRUE))
+    { lik <- if (fname%in%gamlss:::.gamlss.bi.list) eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), log=TRUE))
              else   eval(call(dfun, x=obj$y, mu=fitted(obj, "mu"), log=TRUE))},
-    {lik <- if (fname%in%gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), log=TRUE ))
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), log=TRUE ))
              else   eval(call(dfun, x=obj$y, mu=fitted(obj, "mu"), sigma=fitted(obj,"sigma"), log=TRUE)) },
-    {lik <- eval(call(dfun,x=obj$y, mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"),log=TRUE))},
-    {lik <- eval(call(dfun,x=obj$y, mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau"),log=TRUE))})
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"),log=TRUE ))
+             else   eval(call(dfun,x=obj$y, mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"),log=TRUE))},
+    {lik <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,x=obj$y, bd=obj$bd,  mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau"),log=TRUE))
+             else eval(call(dfun,x=obj$y, mu=fitted(obj,"mu"), sigma=fitted(obj,"sigma"), nu=fitted(obj,"nu"), tau=fitted(obj,"tau"),log=TRUE))})
 lik
 }                          
 #----------------------------------------------------------------------------------------
@@ -110,7 +113,6 @@ lik
 # for getting the comulative function
 get.the.p.function <- function(object, ...)
 {
-gamlss.bi.list <- c("BI", "Binomial", "BB", "Beta Binomial")
 if (!is.gamlss(object))  stop(paste("This is not an gamlss object", "\n", ""))
    fname <- object$family[[1]]
  DistPar <- object$parameters
@@ -118,12 +120,14 @@ if (!is.gamlss(object))  stop(paste("This is not an gamlss object", "\n", ""))
     dfun <- paste("p",fname,sep="")
  # binomial denominators
  switch(nopar,  
-    {pfun <- if (fname%in%gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu")))
+    {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu")))
              else  eval(call(dfun,q=object$y, mu=fitted(object,"mu")))},
-    {pfun <- if (fname%in%gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma")))
+    {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma")))
              else  eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"))) },
-    {pfun <- eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu")))},
-    {pfun <- eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))})
+    {pfun <- if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu")))
+             else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu")))},
+    {pfun <-  if (fname%in%gamlss:::.gamlss.bi.list)  eval(call(dfun,q=object$y, bd=object$bd,  mu=fitted(object,"mu"),sigma=fitted(object,"sigma"),  nu=fitted(object,"nu"),  tau=fitted(object,"tau")))
+             else eval(call(dfun,q=object$y, mu=fitted(object,"mu"), sigma=fitted(object,"sigma"), nu=fitted(object,"nu"), tau=fitted(object,"tau")))})
 pfun 
 }             
 #---------------------------------------------------------------------------------------=
@@ -137,7 +141,7 @@ pfun
  plot.opt <- control$plot.opt
      damp <- control$damp
 #----
- gamlss.bi.list <- c("BI", "Binomial", "BB", "Beta Binomial") # binomial denominators
+ #gamlss.bi.list <- c("BI", "Binomial", "BB", "Beta Binomial") # binomial denominators
      call <- match.call()
 # we need the data so we can expand them
  if (missing(data)) stop("the data argument is needed")
@@ -236,6 +240,9 @@ Eta <- fitout$mu.lp + sz
     { 
    groupk <- interaction(groupijk,factor(kindex))
    logmik <- matrix(tapply(logf,groupk,sum),nrow=nr,ncol=K)
+   #hoehle 09.04.2010: Problem if there are no instances of a specific
+   #groupk factor level -> NA. But we don't want NAs
+   logmik[is.na(logmik)] <- 0
       tmp <- weightslogl.calc.w(p,logmik,pweights[1:nr])# this maybe is rubish and the prior weighrs should be in the logf calulation
        ww <- as.vector(tmp$w[match(groupij,group),])
        ww <- ifelse(ww<1e-20,0,ww)  
@@ -293,6 +300,9 @@ fitout <- if (iter==1)
     if (length(mform)==2) # if repeated measurments
     { 
        logmik <- matrix(tapply(logf,groupk,sum),nrow=nr,ncol=K)
+       #hoehle 09.04.2010: Problem if there are no instances of a specific
+       #groupk factor level -> NA. But we don't want NAs
+       logmik[is.na(logmik)] <- 0
        tmp <- weightslogl.calc.w(p,logmik,pweights[1:nr])
         ww <- as.vector(tmp$w[match(groupij,group),])
         ww <- ifelse(ww<1e-20,0,ww)  
@@ -595,8 +605,7 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
             ylab = "Sample Quantiles", 
             plot.it = TRUE, 
             frame.plot = TRUE, 
-            col="darkgreen", 
-            points(par(col="darkgreen")))
+            col="darkgreen")
             lines(residx, residx, col="red" , lwd=.4, cex=.4 )
   
   if ( identical(summaries, TRUE))
