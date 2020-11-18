@@ -21,7 +21,7 @@ gamlssMX  <- function ( formula = formula(data),
                          weights, 
                               K = 2, 
                            prob = NULL,
-                           data = sys.parent(),
+                           data,
                         control = MX.control(...), 
                       g.control = gamlss.control(trace=FALSE,...),
                  zero.component = FALSE,     
@@ -113,6 +113,7 @@ expand.vc <- function(x,ni)
 #library(gamlss)
 #library(nnet)
  gamlssMXcall <- match.call()  #   the function call
+wei <- NULL
 ## checking for NA in the data 
  if(!missing(data) & any(is.na(data)))   
       stop("The data contains NA's, use data = na.omit(mydata)") 
@@ -159,7 +160,7 @@ if (length(allFormula)!=K) stop("the length of the list for the formula is not e
 ## get response for his length
         Y <- model.extract(model.frame(allFormula[[1]],data=data),"response")
         N <-  if(is.null(dim(Y))) length(Y) else dim(Y)[1]# calculate the dimension for y  
-pweights. <- pweights. <<- if (missing(weights)) rep(1,N) else weights  
+pweights. <-  if (missing(weights)) rep(1,N) else weights  
 ## get things from control
   set.seed(control$seed) # set the seed 
 prob.sample <- if (is.null(control$sample)) 10/N else control$sample  
@@ -169,11 +170,12 @@ allModels <- vector("list",K)
 ## get starting values for the weights (posterior probabilities)
  for (i in 1:K)
    {         wSam <- sample(c(0,1), N, replace = TRUE, prob=c(1-min(.5,prob.sample),min(.5,prob.sample)))  
-              ww. <- ww. <<- wSam # W[,i] # put in 
-             #data1 <<- data.frame(data, ww, pweights)
-    allModels[[i]] <- gamlss(allFormula[[i]], weights=ww.*pweights., data = data, family = allFamily[[i]], control=g.control, ...)
+              ww. <- wSam # W[,i] # put in 
+          #  assign("ww.", ww., envir = as.environment(-1)) #data1 <<- data.frame(data, ww, pweights)
+            data$wei <- ww.*pweights.
+    allModels[[i]] <- gamlss(allFormula[[i]], weights=wei,, data = data, family = allFamily[[i]], control=g.control, ...)
              W[,i] <- get.likelihood(allModels[[i]]) 
-   } 
+ } 
  if(zero.component == TRUE) W[,KK] <- prob[KK]*ifelse(Y==0,1,0)
       SumLik <- rowSums(W)
            W <- W/SumLik
@@ -198,7 +200,7 @@ allModels <- vector("list",K)
       }
       else
       { 
-      dataKK. <<- expand.vc(data,K)# expand data
+      dataKK. <- expand.vc(data,K)# expand data
       fac.fit <- gl(K,N) # get the factor
       }
      res.var <- model.matrix(~fac.fit-1) # get the matrix of zeroes ans ones
@@ -209,8 +211,9 @@ allModels <- vector("list",K)
  while ( abs(olddv-newdv) > control$cc && iter.num < control$n.cyc ) # MS Wednesday, June 26, 2002 
   {
   for (i in 1:K)
-    {          ww. <- ww. <<- W[,i]
-    allModels[[i]] <- gamlss(allFormula[[i]], weights=ww.*pweights., data = data, family = allFamily[[i]], control=g.control,...)
+    {          ww. <-  W[,i]
+          data$wei <- ww.*pweights.
+    allModels[[i]] <- gamlss(allFormula[[i]], weights=wei, data = data, family = allFamily[[i]], control=g.control,...)
              W[,i] <- if (modelPi) PROB[,i]*get.likelihood(allModels[[i]]) else prob[i]*get.likelihood(allModels[[i]])
     } 
      if(zero.component == TRUE)
@@ -290,7 +293,7 @@ out <- list(models = allModels,
                  )
 class(out) <- list("gamlssMX", "gamlss")
 if (modelPi) on.exit(rm(ww.,pweights.,dataKK., envir=sys.frame(0)))
-else on.exit(rm(ww.,pweights., envir=sys.frame(0)))
+#else on.exit(rm(ww.,pweights., envir=sys.frame(0)))
 out
  }  
 #-------------------------------------------------------------------------------
@@ -336,7 +339,7 @@ print.gamlssMX <- function (x, digits = max(3, getOption("digits") - 3), ...)
     K <- x$K 
     cat("\nMixing Family: ", deparse(x$family), "\n", fill=TRUE)
     cat("Fitting method: EM algorithm \n")
-    cat("\nCall: ", deparse(x$call),  "\n", fill=TRUE)
+    cat("\nCall: ", deparse(x$call,width.cutoff=50),  "\n", fill=TRUE)
      for (i in 1:K)
        {
         if ("mu" %in% x$models[[i]]$parameters) 
@@ -400,7 +403,7 @@ else
 }
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-# coefficints of the componets
+# coefficients of the componets
 coef.gamlssMX <- function(object, K=1, ...)
 {
 coef(object$models[[K]], ...)
@@ -452,7 +455,7 @@ gamlssMXfits <- function(    n = 5,
                         weights, 
                              K = 2, 
                           prob = NULL,
-                          data = sys.parent(),
+                          data,
                        control = MX.control(), 
                      g.control = gamlss.control(trace=FALSE),
                      zero.component = FALSE,   

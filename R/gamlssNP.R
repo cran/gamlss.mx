@@ -297,7 +297,7 @@ converged <- FALSE
  while (iter <= EMn.cyc && (!converged || (iter<=9 && mixture=='np'  )))
   {
   ##########Start of EM ##############################
-  if (verbose){ if (iter%%17==16) cat(iter, "..\n") else cat(iter,"..")  }
+  if (verbose){ if (iter%%13==12) cat(iter, "..\n") else cat(iter,"..")  }
 # the gamlss fitting  
 fitout <- if (iter==1)
           { gamlss(formula, family=family, weights=ww*pweights, data = datak, control=g.control, ...)}
@@ -533,7 +533,7 @@ print.gamlssNP <- function (x, digits = max(3, getOption("digits") - 3), ...)
     K <- x$K 
     cat("\nMixing Family: ", deparse(x$family), "\n", fill=TRUE)
     cat("Fitting method: EM algorithm \n")
-    cat("\nCall: ", deparse(x$call),  "\n", fill=TRUE)
+    cat("\nCall: ", deparse(x$call, width.cutoff=50),  "\n", fill=TRUE)
         if ("mu" %in% x$parameters) 
          {      
           cat("Mu Coefficients : \n")   
@@ -555,7 +555,8 @@ print.gamlssNP <- function (x, digits = max(3, getOption("digits") - 3), ...)
           print.default(format(coef(x, "tau"), digits = digits), print.gap = 2, quote = FALSE)        
          }
        if(!is.list(x$prob)) 
-        {cat("\nEstimated probabilities:", x$prob, "\n" )}
+    {cat("\nEstimated probabilities:", format(zapsmall(x$prob, digits = 3), digits=digits,  print.gap = 2, quote = FALSE)
+,fill=74, "\n" )}
     cat("\nDegrees of Freedom for the fit:", x$df.fit, "Residual Deg. of Freedom  ", 
         x$df.residual, "\n")
    cat("Global Deviance:    ", format(signif(x$G.deviance)), 
@@ -668,7 +669,7 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
                     b.1 <- m.3^2/m.2^3
                 sqrtb.1 <- sign(m.3)*sqrt(abs(b.1))
                     b.2 <- m.4/m.2^2 
-              cat("*******************************************************************")
+              cat("******************************************************************")
                      cat("\n")
                      if (identical(x$type,"Continuous")) 
                          {cat("\t","     Summary of the Quantile Residuals")}
@@ -679,7 +680,7 @@ plot.gamlssNP<- function (x, xvar=NULL, parameters=NULL, ts=FALSE, summaries=TRU
                      cat("               coef. of skewness  = ", sqrtb.1, "\n")
                      cat("               coef. of kurtosis  = ", b.2, "\n")
                      cat("Filliben correlation coefficient  = ", Filliben, "\n")
-              cat("*******************************************************************")
+              cat("******************************************************************")
                      cat("\n")
 
                }   
